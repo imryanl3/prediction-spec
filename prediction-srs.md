@@ -7,7 +7,7 @@
 ## 1. PRODUCT OVERVIEW
 
 ### Mô Tả Ngắn Gọn
-**Trading Terminal** chuyên biệt cho **Crypto Premarket** - giúp trader giao dịch các token chưa ra mắt (pre-launch tokens) một cách **nhanh chóng, chuyên nghiệp và hiệu quả** với trải nghiệm **gasless**.
+**Trading Terminal** chuyên biệt cho **Crypto Premarket** - giúp trader giao dịch các token chưa ra mắt (pre-launch tokens) một cách **nhanh chóng, chuyên nghiệp và hiệu quả** với trải nghiệm **hoàn toàn gasless**.
 
 ### Crypto Premarket là gì?
 
@@ -42,7 +42,7 @@
 | Không có TP/SL orders | Không thể auto take profit hay stop loss |
 | Portfolio tracking yếu | Khó phân tích P&L, không có analytics |
 | Khó track smart money | Không biết big players đang bet gì, volume đến từ đâu |
-| Phải trả gas mỗi lần deposit | Tốn phí, trải nghiệm không mượt |
+| Phải trả gas mỗi lần giao dịch | Tốn phí, trải nghiệm không mượt |
 
 ### Giải Pháp Của Chúng Ta
 
@@ -54,18 +54,18 @@
 │  🎯 TỐI ƯU CHO TRADER:                                          │
 │                                                                 │
 │  • Professional trading interface                               │
+│  • Market & Limit orders                                        │
 │  • Multi-market monitoring & watchlists                         │
 │  • TP/SL orders (coming soon)                                   │
 │  • Real-time P&L tracking & analytics                           │
 │  • Smart money tracking & whale alerts                          │
 │                                                                 │
-│  ⚡ GASLESS EXPERIENCE:                                         │
+│  ⚡ HOÀN TOÀN GASLESS:                                          │
 │                                                                 │
 │  • Gasless deposit - không tốn gas khi nạp tiền                 │
-│  • Deposit từ bất kỳ chain nào                                  │
-│  • Tự động bridge, user không cần làm gì                        │
-│  • Fast order execution                                         │
-│  • Direct settlement về wallet                                  │
+│  • Gasless bridge - không tốn gas khi chuyển chain              │
+│  • Gasless trading - không tốn gas khi đặt lệnh                 │
+│  • KHÔNG cần native token (ETH/MATIC) cho bất kỳ thao tác nào   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -80,8 +80,9 @@
 │ ✅ CHÚNG TA LÀM:                                                │
 │    • Hiển thị Crypto Premarket từ Polymarket                    │
 │    • Cung cấp trading terminal chuyên nghiệp                    │
-│    • Forward orders sang Polymarket execution                   │
-│    • Gasless deposit cho seamless experience                    │
+│    • Hỗ trợ Market & Limit orders                               │
+│    • Giao tiếp trực tiếp với Polymarket (gasless)               │
+│    • Realtime data qua WebSocket                                │
 │                                                                 │
 │ ❌ CHÚNG TA KHÔNG LÀM:                                          │
 │    • KHÔNG làm Politics, Sports, hay Events markets             │
@@ -104,39 +105,91 @@
 │                    TRADING TERMINAL ARCHITECTURE                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   USER                                                          │
-│   ┌─────────────┐                                               │
-│   │  Connect    │  Email, Google, hoặc external wallet          │
-│   │  Wallet     │  (Privy embedded wallet)                      │
-│   └──────┬──────┘                                               │
-│          │                                                      │
-│          ▼                                                      │
-│   ┌─────────────┐     ┌──────────────────────────────────┐      │
-│   │  Deposit    │────►│      GASLESS SMART DEPOSIT       │      │
-│   │  (Any Chain)│     │  • Receive funds on any chain    │      │
-│   └─────────────┘     │  • NO GAS required from user     │      │
-│                       │  • Auto-bridge to Polygon        │      │
-│                       │  • Credit USDT to user           │      │
-│                       └──────────────────────────────────┘      │
-│          │                                                      │
-│          ▼                                                      │
-│   ┌─────────────────────────────────────────────────────────┐   │
-│   │                   TRADING TERMINAL                      │   │
-│   │                                                         │   │
-│   │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐     │   │
-│   │  │Premarket│  │ Order   │  │Portfolio│  │ Smart   │     │   │
-│   │  │ Browser │  │ Panel   │  │ Manager │  │ Money   │     │   │
-│   │  └─────────┘  └─────────┘  └─────────┘  └─────────┘     │   │
-│   │                                                         │   │
-│   └─────────────────────────┬───────────────────────────────┘   │
-│                             │                                   │
-│                             ▼                                   │
-│   ┌─────────────────────────────────────────────────────────┐   │
-│   │                    ORDER EXECUTION                      │   │
-│   │                                                         │   │
-│   │  Smart Contract ──► Relayer ──► Polymarket ──► Result   │   │
-│   │                                                         │   │
-│   └─────────────────────────────────────────────────────────┘   │
+│                          ┌──────────────┐                       │
+│                          │  POLYMARKET  │                       │
+│                          │              │                       │
+│                          │  • API       │                       │
+│                          │  • WebSocket │                       │
+│                          │  • Bridge    │                       │
+│                          │  • CLOB      │                       │
+│                          └──────┬───────┘                       │
+│                                 │                               │
+│              ┌──────────────────┼──────────────────┐            │
+│              │                  │                  │            │
+│              ▼                  ▼                  ▼            │
+│   ┌──────────────────┐  ┌─────────────┐  ┌─────────────────┐   │
+│   │    FRONTEND      │  │   BACKEND   │  │  POLYMARKET WS  │   │
+│   │                  │  │             │  │                 │   │
+│   │ • Trading UI     │  │ • Sync data │  │ • Live prices   │   │
+│   │ • Place orders   │◄─┤ • Serve API │  │ • Orderbook     │   │
+│   │ • Bridge tokens  │  │ • Save to DB│  │ • Trades/fills  │   │
+│   │ • Show realtime  │  │             │  │ • Market events │   │
+│   └────────┬─────────┘  └──────┬──────┘  └────────┬────────┘   │
+│            │                   │                  │            │
+│            │                   ▼                  │            │
+│            │            ┌─────────────┐           │            │
+│            │            │  DATABASE   │           │            │
+│            │            │             │           │            │
+│            │            │ • Events    │           │            │
+│            │            │ • Markets   │           │            │
+│            │            │ • Orders    │           │            │
+│            │            └─────────────┘           │            │
+│            │                                      │            │
+│            ▼                                      ▼            │
+│   ┌──────────────────────────────────────────────────────┐    │
+│   │                       USER                            │    │
+│   │                                                       │    │
+│   │  • Register/Login via Privy                           │    │
+│   │  • Deposit tokens to Privy Wallet                     │    │
+│   │  • Trade gasless on Polymarket                        │    │
+│   │  • View realtime data                                 │    │
+│   │                                                       │    │
+│   └──────────────────────────────────────────────────────┘    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        DATA FLOW                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1️⃣ BACKEND SYNC (Background)                                   │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                                                         │   │
+│  │  Backend ──► Polymarket API ──► Fetch events/markets    │   │
+│  │                    │                                    │   │
+│  │                    ▼                                    │   │
+│  │              Save to Database                           │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  2️⃣ FRONTEND TRADING (Direct to Polymarket)                     │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                                                         │   │
+│  │  User ──► Frontend ──► Polymarket API (Gasless)         │   │
+│  │                              │                          │   │
+│  │                              ├── Approve token          │   │
+│  │                              ├── Place order            │   │
+│  │                              └── Return orderId         │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  3️⃣ REALTIME DATA (WebSocket)                                   │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                                                         │   │
+│  │  Frontend ◄──── Polymarket WebSocket                    │   │
+│  │      │                 │                                │   │
+│  │      │                 ├── Live market prices           │   │
+│  │      │                 ├── Orderbook updates            │   │
+│  │      │                 ├── Trades / fills               │   │
+│  │      │                 └── Market lifecycle events      │   │
+│  │      │                                                  │   │
+│  │      └──► Update UI in realtime                         │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -145,83 +198,255 @@
 
 | Component | Mô tả |
 |-----------|-------|
-| **Privy Wallet** | Embedded wallet, login bằng email/Google/external wallet |
-| **Gasless Smart Deposit** | Nhận crypto từ mọi chain, user KHÔNG cần trả gas |
-| **Trading Terminal** | Interface chính cho trader, focus Crypto Premarket |
-| **Order Execution** | Smart contract + Relayer forward orders sang Polymarket |
+| **Privy Auth** | Xác thực user, tạo embedded wallet, quản lý session |
+| **Frontend** | Trading UI, giao tiếp trực tiếp với Polymarket (gasless) |
+| **Backend** | Sync data từ Polymarket, serve API cho Frontend |
+| **Database** | Lưu events, markets, orders |
+| **Polymarket API** | Execute orders (gasless), approve tokens |
+| **Polymarket Bridge** | Bridge tokens giữa các chains (gasless) |
+| **Polymarket WebSocket** | Realtime data: prices, orderbook, trades |
+
+### Key Architecture Points
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    KEY ARCHITECTURE POINTS                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ✅ FRONTEND giao tiếp TRỰC TIẾP với Polymarket                 │
+│     • Place order: FE → Polymarket API                          │
+│     • Bridge token: FE → Polymarket Bridge                      │
+│     • Realtime: FE ← Polymarket WebSocket                       │
+│                                                                 │
+│  ✅ BACKEND chỉ làm việc SYNC và SERVE DATA                     │
+│     • Sync events/markets từ Polymarket                         │
+│     • Lưu vào Database                                          │
+│     • Serve API cho Frontend (GET orders, markets)              │
+│     • KHÔNG execute orders                                      │
+│                                                                 │
+│  ✅ HOÀN TOÀN GASLESS                                           │
+│     • Polymarket hỗ trợ gasless transactions                    │
+│     • User KHÔNG cần native token (ETH/MATIC)                   │
+│     • Deposit, Bridge, Trading đều gasless                      │
+│                                                                 │
+│  ✅ PRIVY cho Authentication                                    │
+│     • Register/Login với email/password                         │
+│     • Tạo embedded wallet tự động                               │
+│     • User nhận deposit address từ Privy wallet                 │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 3. USER FLOWS
+## 3. PREDICTION MARKET BASICS
 
-### 3.1 Gasless Deposit Flow
-
-**Điểm khác biệt: User KHÔNG cần trả gas khi deposit**
+### Price = Probability
 
 ```
-[1] User chọn "Deposit" trong app
+┌─────────────────────────────────────────────────────────────────┐
+│              PREDICTION MARKET PRICE MECHANICS                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Khác với trading thông thường:                                 │
+│                                                                 │
+│  • Price = Xác suất (probability)                               │
+│  • Range: $0.00 - $1.00                                         │
+│  • YES + NO = $1.00 (luôn luôn)                                 │
+│  • Payout: $1/share nếu đúng, $0 nếu sai                        │
+│                                                                 │
+│  Ví dụ: "GRASS > $2 at TGE"                                     │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                                                         │   │
+│  │  YES: $0.65  →  Thị trường nghĩ 65% khả năng > $2       │   │
+│  │  NO:  $0.35  →  Thị trường nghĩ 35% khả năng ≤ $2       │   │
+│  │                                                         │   │
+│  │  YES + NO = $0.65 + $0.35 = $1.00 ✓                     │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  Outcome:                                                       │
+│  • Nếu GRASS TGE = $2.50 → YES wins → $1/share                  │
+│  • Nếu GRASS TGE = $1.80 → NO wins → $0/share cho YES holders   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Shares vs USDT
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    SHARES CALCULATION                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Buy $100 worth of YES @ $0.65:                                 │
+│                                                                 │
+│  Shares = Amount / Price                                        │
+│  Shares = $100 / $0.65 = 153.85 shares                          │
+│                                                                 │
+│  If YES wins:                                                   │
+│  Payout = 153.85 shares × $1 = $153.85                          │
+│  Profit = $153.85 - $100 = +$53.85                              │
+│                                                                 │
+│  If NO wins:                                                    │
+│  Payout = 153.85 shares × $0 = $0                               │
+│  Loss = -$100                                                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 4. ORDER TYPES
+
+### 4.1 Market Order
+
+**Định nghĩa:** Mua/bán ngay lập tức ở best available price trên orderbook.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                       MARKET ORDER                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Đặc điểm:                                                      │
+│  • Execute ngay lập tức                                         │
+│  • Lấy best price từ orderbook                                  │
+│  • Guaranteed fill (nếu có liquidity)                           │
+│  • Có thể bị slippage nếu order size lớn                        │
+│                                                                 │
+│  Khi nào dùng:                                                  │
+│  • Muốn vào/ra position ngay lập tức                            │
+│  • Probability đang di chuyển nhanh                             │
+│  • Ưu tiên speed hơn price                                      │
+│                                                                 │
+│  Cách hoạt động:                                                │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ Orderbook cho "GRASS > $2"                              │   │
+│  │                                                         │   │
+│  │ SELL (Asks)          │  BUY (Bids)                      │   │
+│  │ $0.67 - 500 shares   │  $0.64 - 300 shares              │   │
+│  │ $0.66 - 200 shares   │  $0.63 - 450 shares              │   │
+│  │ $0.65 - 150 shares ◄─┼── Best Ask                       │   │
+│  │                      │  $0.62 - 200 shares              │   │
+│  │                                                         │   │
+│  │ Market Buy → Fill @ $0.65 (best ask)                    │   │
+│  │ Market Sell → Fill @ $0.64 (best bid)                   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 4.2 Limit Order
+
+**Định nghĩa:** Đặt lệnh mua/bán ở một price (probability) cụ thể. Order nằm trên orderbook chờ được match.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                       LIMIT ORDER                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Đặc điểm:                                                      │
+│  • Đặt order ở price mong muốn                                  │
+│  • Order nằm trên orderbook chờ match                           │
+│  • Không bị slippage                                            │
+│  • Có thể không được fill (nếu price không đạt)                 │
+│  • Có thể partial fill                                          │
+│                                                                 │
+│  Khi nào dùng:                                                  │
+│  • Muốn entry ở probability thấp hơn (mua rẻ hơn)               │
+│  • Muốn exit ở probability cao hơn (bán đắt hơn)                │
+│  • Ưu tiên price hơn speed                                      │
+│                                                                 │
+│  Limit Buy YES:                                                 │
+│  • Đặt mua YES ở price thấp hơn current                         │
+│  • Order nằm trên orderbook phía Bids                           │
+│  • Fill khi có người Sell @ price đó hoặc thấp hơn              │
+│                                                                 │
+│  Limit Sell YES:                                                │
+│  • Đặt bán YES ở price cao hơn current                          │
+│  • Order nằm trên orderbook phía Asks                           │
+│  • Fill khi có người Buy @ price đó hoặc cao hơn                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Order Type Comparison
+
+| Aspect | Market Order | Limit Order |
+|--------|--------------|-------------|
+| Execution | Ngay lập tức | Khi price đạt limit |
+| Price | Best available | Price chỉ định |
+| Fill guarantee | ✅ Guaranteed (có liquidity) | ❌ Không guaranteed |
+| Slippage | ⚠️ Có thể (order lớn) | ✅ Không có |
+| Partial fill | Hiếm | Có thể |
+| Cancel | ❌ Không thể | ✅ Có thể |
+| Order location | Execute & gone | Nằm trên orderbook |
+| Gas | ⚡ Gasless | ⚡ Gasless |
+
+---
+
+## 5. USER FLOWS
+
+### 5.1 User Onboarding Flow
+
+```
+[1] User truy cập app
     │
     ▼
-[2] System hiển thị deposit addresses cho các chains
+[2] Register với email/password
+    │
+    ▼
+[3] Frontend gọi Privy Auth
     ┌─────────────────────────────────────────┐
-    │ DEPOSIT                                 │
+    │ PRIVY AUTHENTICATION                    │
     │                                         │
-    │ Send USDT/USDC to any address below:    │
-    │                                         │
-    │ Polygon:  0xAbc...123                   │
-    │ Arbitrum: 0xDef...456                   │
-    │ Base:     0xGhi...789                   │
-    │ BSC:      0xJkl...012                   │
-    │                                         │
-    │ ⚡ GASLESS - You don't pay any gas      │
-    │ ⚡ Auto-converted to USDT               │
-    │ ⚡ Ready to trade in ~2-5 mins          │
+    │ • Tạo Privy account                     │
+    │ • Tạo embedded wallet tự động           │
+    │ • Return userId + wallet address        │
     └─────────────────────────────────────────┘
     │
     ▼
-[3] User gửi crypto từ wallet/CEX của họ
-    → User chỉ cần gửi token, KHÔNG cần giữ native token cho gas
+[4] User thấy deposit address
+    ┌─────────────────────────────────────────┐
+    │ YOUR WALLET                             │
+    │                                         │
+    │ Deposit Address: 0xAbc...123            │
+    │                                         │
+    │ Supported: USDT, USDC                   │
+    │ Networks: Polygon, Arbitrum, Base, BSC  │
+    │                                         │
+    │ ⚡ GASLESS - No native token needed     │
+    └─────────────────────────────────────────┘
     │
     ▼
-[4] Gasless Smart Deposit xử lý:
-    → Detect incoming funds
-    → System pays gas (user không trả)
-    → Auto-bridge to Polygon (nếu cần)
-    → Convert to USDT (nếu cần)
-    → Credit to user balance
+[5] User deposit tokens từ wallet/CEX
+    → Balance hiển thị realtime từ wallet
+
+✅ Hoàn tất onboarding, ready to trade!
+```
+
+### 5.2 Deposit Flow
+
+```
+[1] User có USDT/USDC trong external wallet hoặc CEX
     │
     ▼
-[5] User thấy balance trong Trading Terminal
-    → Ready to trade!
+[2] Copy deposit address từ app (Privy wallet)
+    │
+    ▼
+[3] Send tokens đến deposit address
+    → User KHÔNG cần native token cho gas
+    → Chỉ cần có USDT/USDC là đủ
+    │
+    ▼
+[4] Frontend detect balance từ wallet realtime
+    │
+    ▼
+[5] Balance updated, ready to trade!
 
-⏱️ Processing time: 2-5 minutes
-💰 Gas cost for user: $0
+⏱️ Processing time: 1-5 minutes (tùy network)
+💰 Gas: $0 (Gasless)
 ```
-
-**Ví dụ:**
-```
-Trader muốn deposit $1,000 USDT từ Arbitrum
-
-Step 1: Copy Arbitrum deposit address
-Step 2: Send 1,000 USDT từ personal wallet hoặc CEX
-        → User KHÔNG cần giữ ETH cho gas
-        → Chỉ cần có USDT là đủ
-Step 3: Gasless Smart Deposit nhận và bridge sang Polygon
-        → System trả gas, không phải user
-Step 4: Balance updated: +1,000 USDT
-
-User pays: $0 gas
-Deposit Fee: $0 (0%)
-```
-
-**So sánh với deposit thông thường:**
-
-| Aspect | Deposit thường | Gasless Deposit |
-|--------|----------------|-----------------|
-| User cần native token (ETH/BNB) | ✅ Cần | ❌ Không cần |
-| User trả gas | ✅ ~$0.5-5 | ❌ $0 |
-| Số bước | 2-3 bước | 1 bước |
-| Trải nghiệm | Phức tạp | Đơn giản |
 
 **Supported tokens:**
 | Token | Chains |
@@ -229,102 +454,261 @@ Deposit Fee: $0 (0%)
 | USDT | Polygon, Arbitrum, Base, BSC |
 | USDC | Polygon, Arbitrum, Base, BSC |
 
----
+### 5.3 Bridge Flow (Cross-chain)
 
-### 3.2 Buy Order Flow
+**Khi nào cần bridge?**
+- User có balance trên chain A (vd: Arbitrum)
+- Muốn trade trên Polymarket (Polygon)
+- Cần bridge tokens sang Polygon
 
-**Quy trình:**
 ```
-[1] Chọn Premarket trong Terminal
-    Ví dụ: "GRASS token > $2 at TGE"
+[1] User muốn place order nhưng không đủ balance trên Polygon
+    │
+    ▼
+[2] Frontend hiển thị bridge option
+    ┌─────────────────────────────────────────┐
+    │ BRIDGE TOKENS                           │
+    │                                         │
+    │ From: Arbitrum (Balance: 1,000 USDT)    │
+    │ To:   Polygon                           │
+    │ Amount: 500 USDT                        │
+    │                                         │
+    │ ⚡ GASLESS - No native token needed     │
+    │                                         │
+    │ [Cancel]              [Bridge Now]      │
+    └─────────────────────────────────────────┘
+    │
+    ▼
+[3] Frontend gửi request đến Polymarket Bridge (gasless)
+    │
+    ▼
+[4] Bridge completed
+    │
+    ▼
+[5] Balance on Polygon updated, ready to trade!
+
+⏱️ Bridge time: 2-10 minutes
+💰 Gas: $0 (Gasless)
+```
+
+### 5.4 Buy Order Flow
+
+#### 5.4.1 Market Buy
+
+```
+[1] Chọn Market trong Terminal
+    Ví dụ: "GRASS > $2 at TGE"
     │
     ▼
 [2] Chọn Outcome: YES hoặc NO
     │
     ▼
-[3] Nhập Amount
+[3] Chọn Order Type: MARKET
     │
     ▼
-[4] Review Order
+[4] Nhập Amount ($)
+    │
+    ▼
+[5] Review Order
     ┌─────────────────────────────────────────┐
-    │ BUY ORDER                               │
+    │ MARKET BUY                              │
     │                                         │
-    │ Market:  GRASS > $2 at TGE              │
-    │ Side:    YES                            │
-    │ Price:   $0.65                          │
-    │ Amount:  $100                           │
-    │ Shares:  ~153                           │
-    │ Fee:     $1 (1%)                        │
-    │ Total:   $101                           │
+    │ Market:     GRASS > $2 at TGE           │
+    │ Side:       YES                         │
+    │ Order Type: MARKET                      │
+    │ Best Ask:   $0.65                       │
+    │ Amount:     $100                        │
+    │ Est. Shares: ~153.85                    │
+    │ Fee:        $1 (1%)                     │
+    │ Total:      $101                        │
+    │                                         │
+    │ ⚡ GASLESS - No native token needed     │
     │                                         │
     │ [Cancel]              [Confirm Order]   │
     └─────────────────────────────────────────┘
     │
     ▼
-[5] Confirm & Sign transaction
+[6] Confirm Order
     │
     ▼
-[6] Order executed on Polymarket
+[7] Frontend gửi trực tiếp đến Polymarket API (gasless)
+    → Approve token (gasless)
+    → Place order (gasless)
+    → Return orderId
     │
     ▼
-[7] Position appears in Portfolio
-    → 153 YES shares @ $0.65
+[8] Position appears in Portfolio
+    → 153.85 YES shares @ $0.65
 
-⏱️ Execution time: 30 seconds - 2 minutes
+⏱️ Execution: Instant - 30 seconds
+💰 Gas: $0 (Gasless)
 ```
 
-**Order outcomes:**
+#### 5.4.2 Limit Buy
 
-| Kết quả | Xử lý |
-|---------|-------|
-| ✅ Filled | Position created, refund unused (nếu có) |
-| ❌ Failed | Full refund to wallet |
-| ⏰ Expired | Full refund to wallet |
+```
+[1] Chọn Market trong Terminal
+    │
+    ▼
+[2] Chọn Outcome: YES hoặc NO
+    │
+    ▼
+[3] Chọn Order Type: LIMIT
+    │
+    ▼
+[4] Nhập Limit Price và Amount
+    │
+    ▼
+[5] Review Order
+    ┌─────────────────────────────────────────┐
+    │ LIMIT BUY                               │
+    │                                         │
+    │ Market:     GRASS > $2 at TGE           │
+    │ Side:       YES                         │
+    │ Order Type: LIMIT                       │
+    │ Limit Price: $0.55                      │
+    │ Amount:     $100                        │
+    │ Shares:     181.82 (if filled @ $0.55)  │
+    │ Fee:        $1 (1% when filled)         │
+    │ Total:      $101 (locked)               │
+    │                                         │
+    │ Current Price: $0.65                    │
+    │ Your limit is 15.4% below current       │
+    │                                         │
+    │ ⚡ GASLESS - No native token needed     │
+    │                                         │
+    │ [Cancel]              [Place Order]     │
+    └─────────────────────────────────────────┘
+    │
+    ▼
+[6] Place Order
+    │
+    ▼
+[7] Frontend gửi đến Polymarket API (gasless)
+    → Approve token (gasless)
+    → Place limit order (gasless)
+    → Return orderId
+    → Order nằm trên orderbook (Bids)
+    │
+    ▼
+[8] Order status: OPEN
+    → Nằm trên orderbook, chờ match
+    │
+    ▼
+[9a] Nếu price drop về $0.55:
+     → Order matched & FILLED
+     → Position: 181.82 YES shares @ $0.55
+     
+[9b] Nếu price không về $0.55:
+     → Order remains OPEN
+     → User can CANCEL anytime (gasless)
+     → Funds unlocked
 
----
+⏱️ Place order: Instant
+⏱️ Fill: Depends on market
+💰 Gas: $0 (Gasless)
+```
 
-### 3.3 Sell Order Flow
+### 5.5 Sell Order Flow
 
-**Quy trình:**
+#### 5.5.1 Market Sell
+
 ```
 [1] Vào Portfolio, chọn position
     │
     ▼
-[2] Click "Sell" và nhập quantity
+[2] Click "Sell", chọn Order Type: MARKET
     │
     ▼
-[3] Review Order
+[3] Nhập số shares muốn bán
+    │
+    ▼
+[4] Review Order
     ┌─────────────────────────────────────────┐
-    │ SELL ORDER                              │
+    │ MARKET SELL                             │
     │                                         │
-    │ Market:  GRASS > $2 at TGE              │
-    │ Shares:  100 (of 153)                   │
-    │ Price:   $0.78                          │
-    │ Gross:   $78.00                         │
-    │ Fee:     $0.78 (1%)                     │
-    │ Net:     $77.22                         │
+    │ Market:     GRASS > $2 at TGE           │
+    │ Shares:     100 (of 153.85)             │
+    │ Order Type: MARKET                      │
+    │ Best Bid:   $0.72                       │
+    │ Gross:      ~$72.00                     │
+    │ Fee:        $0.72 (1%)                  │
+    │ Net:        ~$71.28                     │
+    │                                         │
+    │ ⚡ GASLESS                              │
     │                                         │
     │ [Cancel]              [Confirm Sell]    │
     └─────────────────────────────────────────┘
     │
     ▼
-[4] Confirm & Sign
+[5] Confirm Sell
     │
     ▼
-[5] Order executed
+[6] Frontend gửi đến Polymarket API (gasless)
     │
     ▼
-[6] USDT credited to wallet (direct)
-    → +$77.22 USDT
+[7] USDT credited to wallet
+    → Balance: +$71.28 USDT
 
-⏱️ Execution time: 30 seconds - 2 minutes
+⏱️ Execution: Instant - 30 seconds
+💰 Gas: $0 (Gasless)
 ```
 
----
+#### 5.5.2 Limit Sell
 
-### 3.4 Settlement Flow (Market Resolves)
+```
+[1] Vào Portfolio, chọn position
+    │
+    ▼
+[2] Click "Sell", chọn Order Type: LIMIT
+    │
+    ▼
+[3] Nhập Limit Price và số shares
+    │
+    ▼
+[4] Review Order
+    ┌─────────────────────────────────────────┐
+    │ LIMIT SELL                              │
+    │                                         │
+    │ Market:     GRASS > $2 at TGE           │
+    │ Shares:     100 (of 153.85)             │
+    │ Order Type: LIMIT                       │
+    │ Limit Price: $0.80                      │
+    │ Gross:      $80.00 (if filled)          │
+    │ Fee:        $0.80 (1%)                  │
+    │ Net:        $79.20                      │
+    │                                         │
+    │ Current Price: $0.72                    │
+    │ Your limit is 11.1% above current       │
+    │                                         │
+    │ ⚡ GASLESS                              │
+    │                                         │
+    │ [Cancel]              [Place Order]     │
+    └─────────────────────────────────────────┘
+    │
+    ▼
+[5] Place Order (gasless)
+    → Shares locked
+    → Order on orderbook (Asks)
+    │
+    ▼
+[6] Order status: OPEN
+    │
+    ▼
+[7a] Nếu price rise lên $0.80:
+     → Order FILLED
+     → Balance: +$79.20 USDT
 
-**Khi market kết thúc và có kết quả:**
+[7b] Nếu price không lên $0.80:
+     → Order remains OPEN
+     → User can CANCEL anytime (gasless)
+     → Shares unlocked
+
+💰 Gas: $0 (Gasless)
+```
+
+### 5.6 Settlement Flow (Market Resolves)
+
 ```
 [1] Event xảy ra
     Ví dụ: GRASS token TGE, giá mở = $2.50
@@ -336,9 +720,11 @@ Deposit Fee: $0 (0%)
     ▼
 [3] System tính payout cho winners
     ┌─────────────────────────────────────────┐
+    │ SETTLEMENT                              │
+    │                                         │
     │ Position:    150 YES shares             │
-    │ Cost basis:  $97.50                     │
-    │ Payout:      $150.00                    │
+    │ Cost basis:  $97.50 (bought @ $0.65)    │
+    │ Payout:      $150.00 ($1/share)         │
     │ Profit:      +$52.50                    │
     │ Fee:         $0 (no settlement fee)     │
     │ Claimable:   $150.00                    │
@@ -348,45 +734,52 @@ Deposit Fee: $0 (0%)
 [4] User thấy "Claim" button trong Portfolio
     │
     ▼
-[5] User click Claim
+[5] User click Claim (gasless)
     │
     ▼
-[6] USDT sent to wallet (direct)
-    → +$150.00 USDT
+[6] USDT credited to wallet
+    → Balance: +$150.00 USDT
 
-⏱️ Settlement: 1-24 hours after TGE/event
+⏱️ Settlement: 1-24 hours after event
 ⏱️ Claim: Instant
+💰 Gas: $0 (Gasless)
 ```
 
-**Losing position:**
+### 5.7 Realtime Data Flow
+
 ```
-Market resolves: NO (GRASS = $1.80, dưới $2)
-User holds: YES shares
-Result: Shares worth $0
-Status: SETTLED_LOST
+┌─────────────────────────────────────────────────────────────────┐
+│                    REALTIME DATA VIA WEBSOCKET                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Frontend ◄──── Polymarket WebSocket                            │
+│                                                                 │
+│  Nhận realtime:                                                 │
+│  • Live market prices (YES/NO probabilities)                    │
+│  • Orderbook updates (bids/asks changes)                        │
+│  • Trades / fills (khi orders được match)                       │
+│  • Market lifecycle events (resolution, etc.)                   │
+│                                                                 │
+│  Frontend update UI ngay lập tức khi nhận data                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. ORDER STATUS
+## 6. ORDER STATUS
 
-### Buy Order Status
+### Buy/Sell Order Status
 
-| Status | Meaning |
-|--------|---------|
-| `PENDING` | Order submitted, processing |
-| `FILLED` | Successfully executed |
-| `FAILED` | Execution failed, refunding |
-| `REFUNDED` | Funds returned to wallet |
-| `EXPIRED` | Order expired (>5 min) |
-
-### Sell Order Status
-
-| Status | Meaning |
-|--------|---------|
-| `PENDING` | Sell order processing |
-| `FILLED` | Sold, USDT in wallet |
-| `FAILED` | Failed, shares unlocked |
+| Status | Meaning | Order Type |
+|--------|---------|------------|
+| `PENDING` | Order submitted, processing | Market, Limit |
+| `OPEN` | Limit order on orderbook, waiting for match | Limit only |
+| `PARTIALLY_FILLED` | Limit order partially matched | Limit only |
+| `FILLED` | Completely executed | Market, Limit |
+| `CANCELLED` | User cancelled | Limit only |
+| `FAILED` | Execution failed | Market, Limit |
+| `EXPIRED` | Order expired (TTL reached) | Limit only |
 
 ### Position Status
 
@@ -399,20 +792,22 @@ Status: SETTLED_LOST
 
 ---
 
-## 5. PROCESSING TIMES
+## 7. PROCESSING TIMES
 
 | Action | Time | Notes |
 |--------|------|-------|
-| Gasless Deposit | 2-5 minutes | Auto-bridge included, no gas for user |
-| Buy Order | 30s - 2 min | |
-| Sell Order | 30s - 2 min | USDT direct to wallet |
-| Settlement | 1-24 hours | After TGE or event |
-| Claim | Instant | User pays gas |
-| Refund | 5-30 minutes | After admin review |
+| Deposit | 1-5 minutes | Depends on network |
+| Bridge | 2-10 minutes | Gasless cross-chain |
+| Market Order | Instant - 30s | Immediate execution |
+| Limit Order Place | Instant | Goes to orderbook |
+| Limit Order Fill | Variable | Depends on market |
+| Limit Order Cancel | Instant | Gasless |
+| Settlement | 1-24 hours | After event resolution |
+| Claim | Instant | Gasless |
 
 ---
 
-## 6. FEE STRUCTURE
+## 8. FEE STRUCTURE
 
 ### Fee Overview
 
@@ -421,40 +816,61 @@ Status: SETTLED_LOST
 │                        FEE STRUCTURE                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Fee Type                Rate            Notes                 │
+│   Action              Fee             Gas                       │
 │   ───────────────────────────────────────────────────────────   │
-│   Deposit Fee             0%              Free + Gasless        │
-│   Trading Fee             1%              Per order (buy/sell)  │
-│   Settlement Fee          0%              Free                  │
-│   Gas Fee (deposit)       0%              System pays           │
-│   Gas Fee (trade/claim)   User pays       Network dependent     │
+│   Deposit             0%              $0 (Gasless)              │
+│   Bridge              0%              $0 (Gasless)              │
+│   Trading Fee         1% ◄── Platform fee    $0 (Gasless)       │
+│   Settlement Fee      0%              $0 (Gasless)              │
+│   Cancel Order        0%              $0 (Gasless)              │
+│   Claim               0%              $0 (Gasless)              │
+│                                                                 │
+│   ⚡ HOÀN TOÀN GASLESS - User KHÔNG cần native token            │
+│                                                                 │
+│   📌 Trading Fee (1%):                                          │
+│      • Platform thu 1% trên mỗi order FILLED                    │
+│      • Cancelled/Failed orders = Không thu fee                  │
+│      • Fee tính trên amount (buy) hoặc gross (sell)             │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Fee Calculation Examples
 
-**Buy Order:**
+**Market Buy $100:**
 ```
-User mua $100 shares
-
-Amount:      $100
-Trading Fee: $1 (1%)
-Total:       $101
+Amount:           $100
+Platform Fee:     $1 (1%)
+Gas:              $0 (Gasless)
+Total:            $101
 ```
 
-**Sell Order:**
+**Limit Buy (filled):**
 ```
-User bán shares, nhận $78 gross
+Amount:           $100
+Platform Fee:     $1 (1%, charged on fill)
+Gas:              $0 (Gasless)
+Total:            $101
+```
 
-Gross:       $78
-Trading Fee: $0.78 (1%)
-Net:         $77.22
+**Limit Buy (cancelled):**
+```
+Amount:           $100 (returned)
+Platform Fee:     $0 (not filled = no fee)
+Gas:              $0 (Gasless)
+```
+
+**Market Sell (gross $72):**
+```
+Gross:            $72
+Platform Fee:     $0.72 (1%)
+Gas:              $0 (Gasless)
+Net:              $71.28
 ```
 
 ---
 
-## 7. SUPPORTED MARKETS
+## 9. SUPPORTED MARKETS
 
 ### Market Focus: Crypto Premarket Only
 
@@ -494,33 +910,50 @@ Net:         $77.22
 
 ---
 
-## 8. ERROR HANDLING
+## 10. ERROR HANDLING
 
 ### Order Failure Scenarios
 
-**Scenario 1: Insufficient Liquidity**
+**Scenario 1: Insufficient Balance**
 ```
-User places $100K buy order
-→ Polymarket only has $50K available
-→ Order status: FAILED
-→ Action: Full refund to wallet
-→ Notification: "Order failed - Insufficient liquidity"
-```
-
-**Scenario 2: Price Slippage**
-```
-User sets min sell price: $0.68
-→ Actual price at execution: $0.66
-→ Order status: FAILED (protects user)
-→ Action: Shares unlocked, can retry
+User places $1000 buy order
+→ Balance only $500
+→ Order rejected immediately
+→ Notification: "Insufficient balance"
+→ Option: Bridge more tokens
 ```
 
-**Scenario 3: Platform Downtime**
+**Scenario 2: Need to Bridge**
+```
+User places order trên Polygon
+→ Balance trên Polygon không đủ
+→ Nhưng có balance trên Arbitrum
+→ System prompt: "Bridge tokens to continue?"
+→ User bridge (gasless) → Order proceeds
+```
+
+**Scenario 3: Insufficient Liquidity (Market Order)**
+```
+User places $100K market buy
+→ Orderbook only has $50K liquidity
+→ Partial fill or slippage too high
+→ Option: Fill what's available or cancel
+```
+
+**Scenario 4: Limit Order Not Matched**
+```
+User places limit buy @ $0.55
+→ Price never reaches $0.55
+→ Order remains OPEN
+→ User can cancel anytime (gasless)
+```
+
+**Scenario 5: Platform Downtime**
 ```
 Polymarket API unavailable
-→ System retries for 10 minutes
+→ System retries
 → If still failing: Order marked FAILED
-→ Action: Full refund after admin review
+→ Funds remain in wallet
 ```
 
 ### User Notifications
@@ -528,15 +961,18 @@ Polymarket API unavailable
 | Event | In-App | Push | Email |
 |-------|--------|------|-------|
 | Deposit received | ✅ | ✅ | ❌ |
+| Bridge completed | ✅ | ✅ | ❌ |
 | Order filled | ✅ | ✅ | ❌ |
+| Limit order placed | ✅ | ❌ | ❌ |
+| Limit order partially filled | ✅ | ✅ | ❌ |
+| Order cancelled | ✅ | ❌ | ❌ |
 | Order failed | ✅ | ✅ | ✅ |
-| Refund processed | ✅ | ✅ | ✅ |
 | Position claimable | ✅ | ✅ | ✅ |
 | Position settled (lost) | ✅ | ✅ | ❌ |
 
 ---
 
-## 9. PORTFOLIO INTERFACE
+## 11. PORTFOLIO INTERFACE
 
 ### Sample Portfolio View
 
@@ -548,7 +984,18 @@ Polymarket API unavailable
 │ 💰 BALANCE                                                      │
 │ ┌─────────────────────────────────────────────────────────────┐ │
 │ │                                                             │ │
-│ │   1,250.00 USDT                        [Deposit]  [Send]    │ │
+│ │   Polygon:  1,250.00 USDT              [Deposit]  [Bridge]  │ │
+│ │   Arbitrum:   500.00 USDT                                   │ │
+│ │   (Locked in orders: $101)                                  │ │
+│ │   Available: 1,649.00 USDT                                  │ │
+│ │                                                             │ │
+│ └─────────────────────────────────────────────────────────────┘ │
+│                                                                 │
+│ 📋 OPEN ORDERS (1)                                              │
+│ ┌─────────────────────────────────────────────────────────────┐ │
+│ │                                                             │ │
+│ │  LIMIT BUY | GRASS > $2 | YES @ $0.55              OPEN    │ │
+│ │  Amount: $100 | Filled: 0%                   [Cancel]      │ │
 │ │                                                             │ │
 │ └─────────────────────────────────────────────────────────────┘ │
 │                                                                 │
@@ -581,8 +1028,10 @@ Polymarket API unavailable
 │ 📜 HISTORY                                                      │
 │ ┌─────────────────────────────────────────────────────────────┐ │
 │ │ ✅ Claimed "ZRO > $4" +$85.50                     2 hrs ago │ │
+│ │ ✅ Limit Buy filled GRASS YES @ $0.55            5 hrs ago │ │
+│ │ 🔄 Bridged 500 USDT (Arbitrum → Polygon)          6 hrs ago │ │
 │ │ ❌ SETTLED_LOST "STRK airdrop > $2000"           1 day ago │ │
-│ │ 💰 Deposit +500 USDT (Gasless from Arbitrum)      3 hrs ago │ │
+│ │ 💰 Deposit +500 USDT (Arbitrum)                   3 hrs ago │ │
 │ └─────────────────────────────────────────────────────────────┘ │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
@@ -590,30 +1039,32 @@ Polymarket API unavailable
 
 ---
 
-## 10. RISK & USER PROTECTION
+## 12. RISK & USER PROTECTION
 
 ### Potential Risks
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Polymarket downtime | Cannot execute orders | Queue & retry, refund if prolonged |
-| Price slippage | Worse execution than expected | maxPrice/minPrice protection |
-| Bridge failure | Deposit delayed | Multiple bridge providers |
+| Polymarket downtime | Cannot execute orders | Retry mechanism, clear error messages |
+| Thin liquidity | Large orders get slippage | Show estimated slippage, use limit orders |
+| Limit order not filled | Miss opportunity | User can cancel and use market |
+| Bridge delay | Waiting for tokens | Show clear status, multiple bridge providers |
 | TGE delay | Market resolution delayed | Follow Polymarket's timeline |
 
 ### User Protections
 
 | Protection | How It Works |
 |------------|--------------|
-| **Slippage Protection** | User sets max buy price / min sell price |
-| **Order Expiry** | Orders auto-cancel after 5 minutes |
-| **Direct Settlement** | Funds go straight to wallet, no lock-up |
-| **Reviewed Refunds** | Failed orders manually verified before refund |
-| **Gasless Deposit** | No risk of failed deposit due to insufficient gas |
+| **Gasless Experience** | User không cần native token cho bất kỳ action nào |
+| **Order Type Choice** | Market (fast) vs Limit (price control) |
+| **Slippage Warning** | Show estimated slippage for large market orders |
+| **Cancel Anytime** | Limit orders can be cancelled (gasless) |
+| **Direct Settlement** | Funds go straight to wallet |
+| **Multi-chain Balance** | View và bridge balance across chains |
 
 ---
 
-## 11. DISPUTE RESOLUTION
+## 13. DISPUTE RESOLUTION
 
 ### Resolution Process
 
@@ -643,13 +1094,21 @@ Result communicated to user
 
 | Feature | Description |
 |---------|-------------|
-| **Crypto Premarket Terminal** | Professional interface for pre-launch token trading |
-| **Gasless Deposit** | Deposit without paying gas, from any chain |
-| **Multi-market View** | Monitor multiple premarket opportunities |
-| **Portfolio Analytics** | Real-time P&L tracking, performance analysis |
+| **Crypto Premarket Terminal** | Professional interface for pre-launch token prediction |
+| **Market & Limit Orders** | Market (instant) or Limit (target price) |
+| **Hoàn Toàn Gasless** | Deposit, Bridge, Trading đều không cần gas |
+| **Multi-chain Support** | Deposit từ Polygon, Arbitrum, Base, BSC |
+| **Realtime Data** | Live prices, orderbook, trades via WebSocket |
+| **Portfolio Analytics** | Real-time P&L tracking, open orders management |
 | **Smart Money Tracking** | Track whale movements, big player activities |
-| **Fast Execution** | Orders forwarded to Polymarket instantly |
-| **Direct Settlement** | Winnings go straight to wallet |
+| **Direct Execution** | Frontend → Polymarket (no middleman) |
+
+### Order Types
+
+| Type | Best For | Execution | Gas |
+|------|----------|-----------|-----|
+| **Market** | Quick entry/exit | Instant | $0 |
+| **Limit** | Better price | When price reached | $0 |
 
 ### Market Focus
 
@@ -662,32 +1121,64 @@ Result communicated to user
 
 ### Fee Structure
 
-| Fee Type | Rate |
-|----------|------|
-| Deposit Fee | 0% + Gasless |
-| **Trading Fee** | **1%** |
-| Settlement Fee | 0% |
+| Fee Type | Rate | Gas |
+|----------|------|-----|
+| Deposit | 0% | $0 |
+| Bridge | 0% | $0 |
+| **Platform Fee** | **1%** | $0 |
+| Settlement | 0% | $0 |
+| Cancel | 0% | $0 |
+| Claim | 0% | $0 |
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      ARCHITECTURE SUMMARY                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  FRONTEND                                                       │
+│  • Direct connection to Polymarket API (gasless)                │
+│  • Direct connection to Polymarket WebSocket (realtime)         │
+│  • Direct connection to Polymarket Bridge (cross-chain)         │
+│  • Authentication via Privy                                     │
+│                                                                 │
+│  BACKEND                                                        │
+│  • Sync events/markets from Polymarket                          │
+│  • Store data in Database                                       │
+│  • Serve API for Frontend (GET orders, markets)                 │
+│  • Does NOT execute orders                                      │
+│                                                                 │
+│  USER WALLET                                                    │
+│  • Privy embedded wallet                                        │
+│  • Multi-chain support                                          │
+│  • Balance displayed realtime                                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Fund Flow
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Action         │  Flow                                     │
-├─────────────────────────────────────────────────────────────┤
-│  Deposit        │  Any Chain → Gasless Bridge → Balance     │
-│  Buy            │  Balance → Lock → Position                │
-│  Buy (refund)   │  → Direct to Wallet                       │
-│  Sell           │  Position → Direct to Wallet              │
-│  Win            │  → Claimable → Claim → Wallet             │
-│  Lose           │  Position value = $0                      │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Action            │  Flow                     │ Gas           │
+├─────────────────────────────────────────────────────────────────┤
+│  Deposit           │  External → Privy Wallet  │ $0            │
+│  Bridge            │  Chain A → Chain B        │ $0            │
+│  Market Buy/Sell   │  FE → Polymarket API      │ $0            │
+│  Limit Buy/Sell    │  FE → Polymarket API      │ $0            │
+│  Cancel Order      │  FE → Polymarket API      │ $0            │
+│  Claim             │  Polymarket → Wallet      │ $0            │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 2.0  
 **Last Updated:** December 2025  
 **Product:** Trading Terminal for Crypto Premarket  
 **Source Platform:** Polymarket (Crypto Premarket markets)  
-**Trading Fee:** 1%  
-**Deposit:** Gasless
+**Order Types:** Market, Limit  
+**Platform Fee:** 1%  
+**Gas Fee:** $0 (Hoàn toàn Gasless)  
+**Architecture:** Frontend direct to Polymarket
